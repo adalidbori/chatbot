@@ -50,7 +50,7 @@ class Chatbox {
         let msg1 = { name: "User", message: text1 }
         this.messages.push(msg1);
 
-        fetch('http://localhost:3000/api/questions/getbyapi', {
+        fetch('http://54.241.7.103:3000/api/questions/getbyapi', {
           body: JSON.stringify({ codigoapi: "88121129400", texto: text1 }),
           method: 'POST',
           mode: 'cors',
@@ -61,8 +61,8 @@ class Chatbox {
           .then(r => r.json())
           .then(async r => {
             let msg2;
-            if(r == null){
-                msg2 = { name: "Sam", message: '<p>No estoy muy seguro de lo que desea, puede seleccionar una de estas opciones o intentar nuevamente con textos mas especificos.</p></br><p><a href="#" id="link1" >Billing</a></p> </br> <p><a href="#" id="link2" >Account Management</a></p>' };
+            if(r.success == false){
+                msg2 = { name: "Sam", message: 'respuesta falsa' };
             }
             else{
                 var mensaje = '<p></br></p>';
@@ -80,15 +80,6 @@ class Chatbox {
                 };
                 mensaje = await printPreguntas();
                 
-                // var arr = this.getPreguntasAsociadas(r.answerid);
-                // console.log(arr);
-
-                // var mensaje = '</br>';
-                // for (let i=0; i<arr.length; i++ ){
-                //     console.log(i);
-                //     mensaje += '<p><a href="#" id="pregaso"'+arr[i].questionid+'>Billing</a></p></br>'
-                // }
-                
                 msg2 = { name: "Sam", message: mensaje }; 
             }
             this.messages.push(msg2);
@@ -103,7 +94,8 @@ class Chatbox {
     }
 
     getPreguntasAsociadas(answerid){
-        return fetch('http://localhost:3000/api/preguntasasociadasController/getAll', {
+        console.log(answerid);
+        return fetch('http://54.241.7.103:3000/api/preguntasasociadasController/getAll', {
           body: JSON.stringify({ answerid: answerid }),
           method: 'POST',
           mode: 'cors',
@@ -117,7 +109,27 @@ class Chatbox {
         })
         .catch((error) => {
             console.error('Error:', error);
-            this.updateChatText(chatbox)
+            this.updateChatText(chatbox);
+            //textField.value = ''
+        });
+    }
+
+    getRespuestaNoAsociada(){
+        return fetch('http://54.241.7.103:3000/api/preguntasasociadasController/getAll', {
+          body: JSON.stringify({ answerid: answerid }),
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        .then(r =>  r.json())
+        .then(response => {
+            return response;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            this.updateChatText(chatbox);
             //textField.value = ''
         });
     }
@@ -128,7 +140,7 @@ class Chatbox {
         let msg1 = { name: "User", message: text1 }
         this.messages.push(msg1);
 
-        fetch('http://localhost:3000/api/questions/getbyapi', {
+        fetch('http://54.241.7.103:3000/api/questions/getbyapi', {
           body: JSON.stringify({ codigoapi: "88121129400", texto: text1 }),
           method: 'POST',
           mode: 'cors',
@@ -137,14 +149,29 @@ class Chatbox {
           },
         })
           .then(r => r.json())
-          .then(r => {
+          .then(async r => {
             let msg2;
             if(r == null){
-                msg2 = { name: "Sam", message: '<p>No estoy muy seguro de lo que desea, puede seleccionar una de estas opciones o intentar nuevamente con textos mas especificos.</p></br><p><a href="#" id="link1" >Billing</a></p> </br> <p><a href="#" id="link2" >Account Management</a></p>' };
+                msg2 = { name: "Sam", message: '' };
             }
             else{
-                msg2 = { name: "Sam", message: r.textorespuesta };
-                this.getPreguntasAsociadas(r.answerid);                
+                var mensaje = '<p></br></p>';
+                const printPreguntas = async () => {
+                     const a = await this.getPreguntasAsociadas(r.answerid);
+                     
+                    for (let i=0; i<a.length; i++ ){  
+                        mensaje += '<p><a href="#" id="pregaso'+a[i].questionid+'">'+a[i].textopregunta+'</a></p></br>';
+                        let idsmap = {id : "pregaso"+a[i].questionid, texto : a[i].textopregunta};
+                        this.arrayids.findIndex(x => x.id == idsmap.id) == -1 ? this.arrayids.push(idsmap): console.log("Object already exists");
+                        
+                    } 
+                    mensaje = r.textorespuesta + mensaje;
+                    return mensaje;
+                };  
+                
+                mensaje = await printPreguntas();
+                
+                msg2 = { name: "Sam", message: mensaje }; 
             }
                 
             this.messages.push(msg2);
