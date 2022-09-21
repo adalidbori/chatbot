@@ -68,7 +68,7 @@ class Chatbox {
                 var mensaje = '<p></br></p>';
                 const printPreguntas = async () => {
                      const a = await this.getPreguntasAsociadas(r.answerid);
-                     
+                     console.log(r.answerid + " answerid");
                     for (let i=0; i<a.length; i++ ){  
                         mensaje += '<p><a href="#" id="pregaso'+a[i].questionid+'">'+a[i].textopregunta+'</a></p></br>';
                         let idsmap = {id : "pregaso"+a[i].questionid, texto : a[i].textopregunta};
@@ -134,7 +134,6 @@ class Chatbox {
         });
     }
 
-    //falta automatizar la traida de los items del menu, ya se creo la tabla itemmenu en postgres
     onSendTextToButton(chatbox,texto){
         let text1 = texto;
         let msg1 = { name: "User", message: text1 }
