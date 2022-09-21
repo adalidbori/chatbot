@@ -132,6 +132,8 @@ body {
     color: white;
 }
 
+
+
 /* Messages */
 .chatbox__messages {
     padding: 0 20px;
@@ -149,6 +151,10 @@ body {
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
+}
+
+.item_menu_respuesta {
+    color: rgb(12, 138, 223);
 }
 
 .messages__item--operator {
