@@ -17,6 +17,7 @@ body {
     --primaryBoxShadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
     --secondaryBoxShadow: 0px -10px 15px rgba(0, 0, 0, 0.1);
     --primary: #581B98;
+
 }
 
 /* CHATBOX
@@ -65,7 +66,6 @@ body {
 .chatbox__header {
     position: sticky;
     top: 0;
-    background: orange;
 }
 
 /* MESSAGES */
