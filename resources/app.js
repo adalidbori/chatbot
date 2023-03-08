@@ -1,15 +1,18 @@
 class Chatbox {
-
+    
     constructor() {
         this.args = {
             openButton: document.querySelector('.chatbox__button'),
             chatBox: document.querySelector('.chatbox__support'),
             sendButton: document.querySelector('.send__button'),
+            
         }
 
         this.state = false;
         this.messages = [];
         this.arrayids = [];
+        const token = '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';
+        localStorage.setItem('token', token);
     };
 
     
@@ -49,122 +52,38 @@ class Chatbox {
 
         let msg1 = { name: "User", message: text1 }
         this.messages.push(msg1);
+        this.updateChatText(chatbox, textField);
+        let query = {model: "gpt-3.5-turbo",messages: [{role: "user", content: text1}]}
 
-        fetch('http://54.241.7.103:3000/api/questions/getbyapi', {
-          body: JSON.stringify({ codigoapi: "88121129400", texto: text1 }),
+        fetch('https://api.openai.com/v1/chat/completions', {
+          body: JSON.stringify(query),
           method: 'POST',
-          mode: 'cors',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
           },
         })
           .then(r => r.json())
-          .then(async r => {
+          .then(data => {
             let msg2;
-            if(r.success == false){
-                msg2 = { name: "Sam", message: 'Please try another question.' };
+            if(data.success == false){
+                msg2 = { name: "Sam", message: 'We can not process your query at this time.' };
             }
             else{
-                var mensaje = '';
-                const printPreguntas = async () => {
-                     const a = await this.getPreguntasAsociadas(r.answerid);
-                     console.log(r.answerid + " answerid");
-                    for (let i=0; i<a.length; i++ ){  
-                        mensaje += '<p></br><a class="item_menu_respuesta" href="#" id="pregaso'+a[i].questionid+'">'+a[i].textopregunta+'</a></p>';
-                        let idsmap = {id : "pregaso"+a[i].questionid, texto : a[i].textopregunta};
-                        this.arrayids.findIndex(x => x.id == idsmap.id) == -1 ? this.arrayids.push(idsmap): console.log("Object already exists");
-                        
-                    } 
-                    mensaje = r.textorespuesta + mensaje;
-                    return mensaje;
-                };
-                mensaje = await printPreguntas();
-                
-                msg2 = { name: "Sam", message: mensaje }; 
+                var mensaje = data.choices[0].message.content;
+                msg2 = { name: "Sam", message: mensaje}; 
             }
             this.messages.push(msg2);
-            this.updateChatText(chatbox)
-            textField.value = ''
+            this.updateChatText(chatbox, textField)
 
         }).catch((error) => {
             console.error('Error:', error);
-            this.updateChatText(chatbox)
-            textField.value = ''
-          });
-    }
-
-    getPreguntasAsociadas(answerid){
-        console.log(answerid);
-        return fetch('http://54.241.7.103:3000/api/preguntasasociadasController/getAll', {
-          body: JSON.stringify({ answerid: answerid }),
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        })
-        .then(r =>  r.json())
-        .then(response => {
-            return response;
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            //textField.value = ''
+            this.updateChatText(chatbox, textField)
         });
     }
 
-
-    onSendTextToButton(chatbox,texto){
-        let text1 = texto;
-        let msg1 = { name: "User", message: text1 }
-        this.messages.push(msg1);
-
-        fetch('http://54.241.7.103:3000/api/questions/getbyapi', {
-          body: JSON.stringify({ codigoapi: "88121129400", texto: text1 }),
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        })
-          .then(r => r.json())
-          .then(async r => {
-            let msg2;
-            if(r.success == false){
-                msg2 = { name: "Sam", message: 'Please try another question.' };
-            }
-            else{
-                var mensaje = '';
-                const printPreguntas = async () => {
-                     const a = await this.getPreguntasAsociadas(r.answerid);
-                     
-                    for (let i=0; i<a.length; i++ ){  
-                        mensaje += '<p></br><a class="item_menu_respuesta" href="#" id="pregaso'+a[i].questionid+'">'+a[i].textopregunta+'</a></p></br>';
-                        let idsmap = {id : "pregaso"+a[i].questionid, texto : a[i].textopregunta};
-                        this.arrayids.findIndex(x => x.id == idsmap.id) == -1 ? this.arrayids.push(idsmap): console.log("Object already exists");
-                        
-                    } 
-                    mensaje = r.textorespuesta + mensaje;
-                    return mensaje;
-                };  
-                
-                mensaje = await printPreguntas();
-                
-                msg2 = { name: "Sam", message: mensaje }; 
-            }
-                
-            this.messages.push(msg2);
-            this.updateChatText(chatbox)
-            //textField.value = ''
-
-        }).catch((error) => {
-            console.error('Error:', error);
-            this.updateChatText(chatbox)
-            //textField.value = ''
-          });
-    }
-
-    updateChatText(chatbox) {
+    updateChatText(chatbox, textField) {
+        textField.value = '';
         var html = '';
         this.messages.slice().reverse().forEach(function(item, index) {
             if (item.name === "Sam")
@@ -179,20 +98,7 @@ class Chatbox {
 
         const chatmessage = chatbox.querySelector('.chatbox__messages');
         chatmessage.innerHTML = html;
-        
-        if(this.arrayids.length>0){
-            console.log(this.arrayids.length);
-            for(let i=0; i<this.arrayids.length; i++){
-                console.log(this.arrayids[i].id);
-                document.getElementById(this.arrayids[i].id).addEventListener('click', () => this.onSendTextToButton(chatbox, this.arrayids[i].texto));
-            }
-            //this.arrayids = [];
-        }
     }
 }
 const chatbox = new Chatbox();
 chatbox.display();
-
-/**falta la automatizacion de la respuesta no reconocida para
- que muestre el menu automatico al igual que las preguntas 
- asociadas. */
