@@ -6,7 +6,7 @@ fetch('resources/chatbot.html')
     document.body.appendChild(div);
     const script = document.createElement('script');
     script.src = 'resources/app.js';
-    script.type = 'text/javascript';
+    script.type = 'module';
     document.body.appendChild(script);
     const css = document.createElement('link');
     css.href = 'resources/style.css';

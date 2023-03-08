@@ -1,3 +1,4 @@
+import apiKeys from './apiKey.js';
 class Chatbox {
     
     constructor() {
@@ -11,8 +12,8 @@ class Chatbox {
         this.state = false;
         this.messages = [];
         this.arrayids = [];
-        const token = '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';
-        localStorage.setItem('token', token);
+        
+        localStorage.setItem('token', apiKeys.apiKey);
     };
 
     
