@@ -50,11 +50,17 @@ class Chatbox {
         if (text1 === "") {
             return;
         }
-
-        let msg1 = { name: "User", message: text1 }
+        
+        let msg1 = { name: "user", message: text1 }
         this.messages.push(msg1);
         this.updateChatText(chatbox, textField);
-        let query = {model: "gpt-3.5-turbo",messages: [{role: "user", content: text1}]}
+        let query = {model: "gpt-3.5-turbo",messages: []}
+        console.log(this.messages.length+"");
+        if(msg1!==null){
+            this.messages.forEach(mensaje => {
+                query.messages.push({role: mensaje.name, content: mensaje.message});
+            });
+        }
 
         fetch('https://api.openai.com/v1/chat/completions', {
           body: JSON.stringify(query),
@@ -68,11 +74,11 @@ class Chatbox {
           .then(data => {
             let msg2;
             if(data.success == false){
-                msg2 = { name: "Sam", message: 'We can not process your query at this time.' };
+                msg2 = { name: "assistant", message: 'We can not process your query at this time.' };
             }
             else{
                 var mensaje = data.choices[0].message.content;
-                msg2 = { name: "Sam", message: mensaje}; 
+                msg2 = { name: "assistant", message: mensaje}; 
             }
             this.messages.push(msg2);
             this.updateChatText(chatbox, textField)
@@ -87,7 +93,7 @@ class Chatbox {
         textField.value = '';
         var html = '';
         this.messages.slice().reverse().forEach(function(item, index) {
-            if (item.name === "Sam")
+            if (item.name === "assistant")
             {
                 html += '<div class="messages__item messages__item--visitor">' + item.message + '</div>'
             }
