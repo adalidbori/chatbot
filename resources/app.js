@@ -11,7 +11,6 @@ class Chatbox {
 
         this.state = false;
         this.messages = [];
-        this.arrayids = [];
         
         localStorage.setItem('token', apiKeys.apiKey);
     };
@@ -55,7 +54,6 @@ class Chatbox {
         this.messages.push(msg1);
         this.updateChatText(chatbox, textField);
         let query = {model: "gpt-3.5-turbo",messages: []}
-        console.log(this.messages.length+"");
         if(msg1!==null){
             this.messages.forEach(mensaje => {
                 query.messages.push({role: mensaje.name, content: mensaje.message});
@@ -92,18 +90,23 @@ class Chatbox {
     updateChatText(chatbox, textField) {
         textField.value = '';
         var html = '';
+        let count = this.messages.length;
+        let aux = 0;
         this.messages.slice().reverse().forEach(function(item, index) {
+            aux++;
             if (item.name === "assistant")
             {
-                html += '<div class="messages__item messages__item--visitor">' + item.message + '</div>'
+                html += '<div class="messages__item messages__item--visitor">' + item.message + '</div>' 
             }
             else
             {
+                //Texto escrito por el usuario
                 html += '<div class="messages__item messages__item--operator">' + item.message + '</div>'
             }
           });
 
         const chatmessage = chatbox.querySelector('.chatbox__messages');
+        
         chatmessage.innerHTML = html;
     }
 }
